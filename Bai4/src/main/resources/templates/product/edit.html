@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Edit Product</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Edit Product</h2>
+            <form th:action="@{/products/edit}" th:object="${product}" method="post" enctype="multipart/form-data">
+                <input type="hidden" th:field="*{id}">
+
+                <div class="form-group mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="name" th:field="*{name}" 
+                           th:classappend="${#fields.hasErrors('name') ? 'is-invalid' : ''}">
+                    <div class="alert alert-warning" th:if="${#fields.hasErrors('name')}">
+                        <span th:errors="*{name}"></span>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="price" class="form-label">Price:</label>
+                    <input type="number" class="form-control" id="price" th:field="*{price}" 
+                           th:classappend="${#fields.hasErrors('price') ? 'is-invalid' : ''}">
+                    <div class="alert alert-warning" th:if="${#fields.hasErrors('price')}">
+                        <span th:errors="*{price}"></span>
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="image" class="form-label">Image:</label>
+                    <div th:if="${product.image}">
+                        <img th:src="@{/images/{image}(image=${product.image})}" 
+                             alt="Product Image" height="120" width="150" style="object-fit: cover;" class="mb-2">
+                        <br>
+                    </div>
+                    <label>Chọn tệp</label>
+                    <span th:if="${#fields.hasErrors('image')}" class="text-danger">Không có tệp nào được chọn</span>
+                    <input type="file" class="form-control" id="image" name="imageProduct" accept="image/png,image/jpeg">
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="category" class="form-label">Category:</label>
+                    <select class="form-control" id="category" name="categoryId">
+                        <option th:each="cat : ${categories}" 
+                                th:value="${cat.id}" 
+                                th:text="${cat.name}"
+                                th:selected="${product.category != null && product.category.id == cat.id}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-3">
+                    <input type="submit" class="btn btn-success" value="Add Product">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

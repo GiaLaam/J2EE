@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Danh sách sản phẩm</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Danh sách sản phẩm</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/products/create" class="btn btn-primary">
+                Tạo sản phẩm mới
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Image</th>
+                    <th>Category Name</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="product : ${listproduct}">
+                    <td th:text="${product.id}"></td>
+                    <td th:text="${product.name}"></td>
+                    <td th:text="${product.price}"></td>
+                    <td>
+                        <img th:if="${product.image}" th:src="@{/images/{image}(image=${product.image})}" 
+                             alt="Product Image" height="120" width="150" style="object-fit: cover;">
+                        <span th:if="!${product.image}">Không có ảnh</span>
+                    </td>
+                    <td th:text="${product.category != null ? product.category.name : 'N/A'}"></td>
+                    <td>
+                        <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-sm btn-secondary">
+                            Edit
+                        </a>
+                        <form th:action="@{/products/delete/{id}(id=${product.id})}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa?')">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:if="${#lists.isEmpty(listproduct)}" class="alert alert-info">
+        Không có sản phẩm nào. <a href="/products/create">Thêm sản phẩm mới</a>
+    </div>
+</div>
+</body>
+</html>
