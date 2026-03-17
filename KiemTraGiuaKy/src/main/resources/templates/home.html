@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống đăng ký học phần</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="screen-home">
+<div class="page-shell">
+    <header class="hero">
+        <div>
+            <p class="eyebrow">Hệ thống đăng ký học phần</p>
+            <h1>Danh sách học phần</h1>
+        </div>
+        <div class="hero-side">
+            <form th:action="@{/courses}" method="get" class="search-form">
+                <label class="search-label" for="keyword">Tìm kiếm học phần</label>
+                <div class="search-row">
+                    <input id="keyword" name="keyword" type="text" th:value="${keyword}" placeholder="Nhập tên học phần">
+                    <button class="button" type="submit">Tìm kiếm</button>
+                </div>
+            </form>
+            <div class="hero-actions">
+                <a class="button button-light" th:href="@{/login}" sec:authorize="isAnonymous()">Đăng nhập</a>
+                <a class="button button-light" th:href="@{/register}" sec:authorize="isAnonymous()">Đăng ký</a>
+                <a class="button button-light" th:href="@{/admin/courses}" sec:authorize="hasRole('ADMIN')">Quản lý học phần</a>
+                <a class="button button-light" th:href="@{/enroll/my-courses}" sec:authorize="hasRole('STUDENT') and !hasRole('ADMIN')">Học phần của tôi</a>
+                <form th:action="@{/logout}" method="post" sec:authorize="isAuthenticated()">
+                    <button class="button button-ghost" type="submit">Đăng xuất</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <section class="course-grid">
+        <article class="course-card" th:each="course : ${coursePage.content}">
+            <img th:src="${course.image}" th:alt="${course.name}">
+            <div class="course-card__content">
+                <div class="category-chip" th:text="${course.category.name}">Danh mục</div>
+                <h2 th:text="${course.name}">Tên học phần</h2>
+                <p><strong>Số tín chỉ:</strong> <span th:text="${course.credits}">3</span></p>
+                <p><strong>Giảng viên:</strong> <span th:text="${course.lecturer}">Giảng viên</span></p>
+                <form th:action="@{/enroll/{courseId}(courseId=${course.id})}" method="post" sec:authorize="hasRole('STUDENT') and !hasRole('ADMIN')">
+                    <button class="button button-light card-button"
+                            type="button"
+                            th:attr="data-course-name=${course.name}"
+                            data-enroll-trigger>
+                        Đăng ký học phần
+                    </button>
+                </form>
+            </div>
+        </article>
+    </section>
+
+    <div class="empty-state" th:if="${coursePage.totalElements == 0}">
+        <span th:if="${keyword != null and !keyword.isBlank()}">Không tìm thấy học phần phù hợp với từ khóa.</span>
+        <span th:unless="${keyword != null and !keyword.isBlank()}">Chưa có học phần nào.</span>
+    </div>
+
+    <div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="alert error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <nav class="pagination">
+        <a th:classappend="${coursePage.first} ? 'disabled'"
+           th:href="${coursePage.first} ? '#' : @{/courses(page=${currentPage - 1}, keyword=${keyword})}">
+            Trang trước
+        </a>
+        <a th:each="pageNumber : ${#numbers.sequence(0, coursePage.totalPages > 0 ? coursePage.totalPages - 1 : 0)}"
+           th:href="@{/courses(page=${pageNumber}, keyword=${keyword})}"
+           th:text="${pageNumber + 1}"
+           th:classappend="${pageNumber == currentPage} ? 'active'">
+            1
+        </a>
+        <a th:classappend="${coursePage.last} ? 'disabled'"
+           th:href="${coursePage.last} ? '#' : @{/courses(page=${currentPage + 1}, keyword=${keyword})}">
+            Trang sau
+        </a>
+    </nav>
+</div>
+
+<div id="enroll-modal" class="modal-backdrop" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="enroll-modal-title">
+        <p class="eyebrow">Xác nhận đăng ký</p>
+        <h2 id="enroll-modal-title">Đăng ký học phần</h2>
+        <p class="modal-copy">
+            Bạn chắc chắn muốn đăng ký học phần
+            <strong id="enroll-course-name">này</strong>
+            ?
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="button button-ghost" id="cancel-enroll-btn">Hủy</button>
+            <button type="button" class="button" id="confirm-enroll-btn">Xác nhận</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const modal = document.getElementById("enroll-modal");
+        const courseNameElement = document.getElementById("enroll-course-name");
+        const confirmButton = document.getElementById("confirm-enroll-btn");
+        const cancelButton = document.getElementById("cancel-enroll-btn");
+        const triggers = document.querySelectorAll("[data-enroll-trigger]");
+        let activeEnrollForm = null;
+
+        function openEnrollModal(button) {
+            activeEnrollForm = button.closest("form");
+            const courseName = button.getAttribute("data-course-name") || "này";
+            courseNameElement.textContent = courseName;
+            modal.hidden = false;
+            document.body.classList.add("modal-open");
+        }
+
+        function closeEnrollModal() {
+            activeEnrollForm = null;
+            modal.hidden = true;
+            document.body.classList.remove("modal-open");
+        }
+
+        function submitEnrollForm() {
+            if (activeEnrollForm) {
+                activeEnrollForm.submit();
+            }
+        }
+
+        triggers.forEach(function (button) {
+            button.addEventListener("click", function () {
+                openEnrollModal(button);
+            });
+        });
+
+        cancelButton.addEventListener("click", closeEnrollModal);
+        confirmButton.addEventListener("click", submitEnrollForm);
+
+        modal.addEventListener("click", function (event) {
+            if (event.target === modal) {
+                closeEnrollModal();
+            }
+        });
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape" && !modal.hidden) {
+                closeEnrollModal();
+            }
+        });
+    });
+</script>
+</body>
+</html>
