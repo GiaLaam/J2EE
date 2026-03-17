@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Course image placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#17313e"/>
+      <stop offset="100%" stop-color="#c96a3d"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  <circle cx="240" cy="200" r="120" fill="#ffffff" fill-opacity="0.12"/>
+  <circle cx="980" cy="620" r="160" fill="#ffffff" fill-opacity="0.10"/>
+  <rect x="160" y="280" width="880" height="240" rx="32" fill="#fff7ec" fill-opacity="0.14"/>
+  <text x="160" y="360" fill="#fff7ec" font-size="72" font-family="Georgia, serif" font-weight="700">Course Registration</text>
+  <text x="160" y="450" fill="#fff7ec" font-size="38" font-family="Georgia, serif">Upload anh that tu may tinh trong trang quan tri</text>
+</svg>

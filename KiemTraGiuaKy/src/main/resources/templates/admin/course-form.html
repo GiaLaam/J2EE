@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${mode == 'create'} ? 'Thêm học phần' : 'Cập nhật học phần'">Biểu mẫu học phần</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="screen-auth">
+<div class="auth-shell">
+    <div class="auth-card wide">
+        <p class="eyebrow">Biểu mẫu quản trị</p>
+        <h1 th:text="${mode == 'create'} ? 'Thêm học phần' : 'Cập nhật học phần'">Biểu mẫu học phần</h1>
+
+        <form th:action="${mode == 'create'} ? @{/admin/courses/create} : @{/admin/courses/{id}/edit(id=${course.id})}"
+              th:object="${course}"
+              enctype="multipart/form-data"
+              method="post"
+              class="auth-form">
+            <label for="name">Tên học phần</label>
+            <input id="name" type="text" th:field="*{name}" placeholder="Nhập tên học phần">
+            <p class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+
+            <label for="credits">Số tín chỉ</label>
+            <input id="credits" type="number" th:field="*{credits}" min="1" placeholder="Nhập số tín chỉ">
+            <p class="field-error" th:if="${#fields.hasErrors('credits')}" th:errors="*{credits}"></p>
+
+            <label for="lecturer">Giảng viên</label>
+            <input id="lecturer" type="text" th:field="*{lecturer}" placeholder="Nhập tên giảng viên">
+            <p class="field-error" th:if="${#fields.hasErrors('lecturer')}" th:errors="*{lecturer}"></p>
+
+            <div th:if="${course.currentImage}">
+                <label>Ảnh hiện tại</label>
+                <img class="preview-image" th:src="${course.currentImage}" alt="Ảnh minh họa học phần">
+            </div>
+
+            <label for="imageFile">Hình ảnh học phần</label>
+            <input id="imageFile" type="file" th:field="*{imageFile}" accept="image/*">
+            <p class="field-help">Chấp nhận file JPG, JPEG, PNG, GIF, WEBP. Khi sửa, để trống nếu muốn giữ ảnh cũ.</p>
+            <p class="field-error" th:if="${#fields.hasErrors('imageFile')}" th:errors="*{imageFile}"></p>
+
+            <label for="category">Danh mục</label>
+            <select id="category" th:field="*{categoryId}">
+                <option value="">Chọn danh mục</option>
+                <option th:each="category : ${categories}"
+                        th:value="${category.id}"
+                        th:text="${category.name}">
+                    Danh mục
+                </option>
+            </select>
+            <p class="field-error" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></p>
+
+            <button type="submit" class="button" th:text="${mode == 'create'} ? 'Lưu học phần' : 'Cập nhật học phần'">Lưu</button>
+        </form>
+
+        <a th:href="@{/admin/courses}" class="text-link">Quay về danh sách quản lý</a>
+    </div>
+</div>
+</body>
+</html>

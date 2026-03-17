@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý học phần</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="screen-admin">
+<div class="page-shell">
+    <header class="hero compact">
+        <div>
+            <p class="eyebrow">Quản trị viên</p>
+            <h1>CRUD học phần</h1>
+            <p class="hero-copy">Quản lý danh sách học phần theo yêu cầu đề bài.</p>
+            <div class="hero-metrics">
+                <div class="metric-card">
+                    <span>Số học phần</span>
+                    <strong th:text="${coursePage.totalElements}">0</strong>
+                </div>
+            </div>
+        </div>
+        <div class="hero-actions">
+            <a class="button" th:href="@{/admin/courses/create}">Thêm học phần</a>
+            <a class="button button-light" th:href="@{/home}">Trang chủ</a>
+        </div>
+    </header>
+
+    <div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tên học phần</th>
+                <th>Số tín chỉ</th>
+                <th>Giảng viên</th>
+                <th>Danh mục</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="course : ${coursePage.content}">
+                <td th:text="${course.id}">1</td>
+                <td th:text="${course.name}">Spring Boot</td>
+                <td th:text="${course.credits}">3</td>
+                <td th:text="${course.lecturer}">Giảng viên</td>
+                <td th:text="${course.category.name}">Danh mục</td>
+                <td class="actions">
+                    <a class="button button-small button-light" th:href="@{/admin/courses/{id}/edit(id=${course.id})}">Cập nhật</a>
+                    <form th:action="@{/admin/courses/{id}/delete(id=${course.id})}" method="post">
+                        <button class="button button-small button-danger" type="submit" onclick="return confirm('Bạn chắc chắn muốn xóa học phần này?');">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <nav class="pagination">
+        <a th:classappend="${coursePage.first} ? 'disabled'"
+           th:href="${coursePage.first} ? '#' : @{/admin/courses(page=${currentPage - 1})}">
+            Trang trước
+        </a>
+        <a th:each="pageNumber : ${#numbers.sequence(0, coursePage.totalPages > 0 ? coursePage.totalPages - 1 : 0)}"
+           th:href="@{/admin/courses(page=${pageNumber})}"
+           th:text="${pageNumber + 1}"
+           th:classappend="${pageNumber == currentPage} ? 'active'">
+            1
+        </a>
+        <a th:classappend="${coursePage.last} ? 'disabled'"
+           th:href="${coursePage.last} ? '#' : @{/admin/courses(page=${currentPage + 1})}">
+            Trang sau
+        </a>
+    </nav>
+</div>
+</body>
+</html>
